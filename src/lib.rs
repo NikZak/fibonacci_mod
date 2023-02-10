@@ -1,5 +1,3 @@
-use std::collections;
-// Fibonaci numbers mod n
 use num_prime::nt_funcs::factorize;
 use gcd::Gcd;
 
@@ -11,10 +9,9 @@ pub fn pisano_period(m: u128) -> u128 {
     let factors = factorize(m);
     let mut gcd_ : u128 = 1;
     let mut lcm_ : u128 = 1;
-    let mut pis_per_cur : u128 = 1;
 
     for (i, (p, k)) in factors.iter().enumerate() {
-        pis_per_cur = pisano_period_prime(*p)*p.pow((k-1).try_into().unwrap());
+        let pis_per_cur = pisano_period_prime(*p)*p.pow((k-1).try_into().unwrap());
         if i == 0 {
             gcd_ = pis_per_cur;
             lcm_ = pis_per_cur;
@@ -55,19 +52,18 @@ pub fn fib_mod_fast_doubling(k: u128, n: u128, pis_per: u128) -> (u128, u128) {
     } else if k == 1 {
         return (1, 1);
     }
-    let (mut a, mut b) = fib_mod_fast_doubling(k / 2, n, pis_per);
-    let mut temp = 0;
-    if 2*b >= a {
-        temp = 2*b-a;
+    let (a, b) = fib_mod_fast_doubling(k / 2, n, pis_per);
+    let temp = if 2*b >= a {
+        2*b-a
     } else {
-        temp = (2*b+n) -a;
-    }
+        (2*b+n) -a
+    };
     let c = (a * temp) % n;
     let d = (a * a + b * b) % n;
     if k % 2 == 0 {
-        return (c, d);
+        (c, d)
     } else {
-        return (d, (c + d) % n);
+        (d, (c + d) % n)
     }
 }
 
