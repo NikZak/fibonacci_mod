@@ -81,7 +81,7 @@ mod tests {
         assert_eq!(pisano_period(235,           ), 160);
         assert_eq!(pisano_period(235*235,       ), 37600);
         assert_eq!(pisano_period(1234567891011, ), 21618914688);
-        assert_eq!(pisano_period(356, ), 132);
+        assert_eq!(pisano_period(356,           ), 132);
     }
 
     #[test]
