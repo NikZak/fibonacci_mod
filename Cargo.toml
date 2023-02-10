@@ -7,7 +7,7 @@ description = "Fibonacci numbers modulo n"
 repository = "https://github.com/NikZak/fibonacci_mod"
 license = "MIT/Apache-2.0"
 readme = "README.md"
-keywords = ["fibonacci", "mod", "modulo", "prime", "gcd"]
+keywords = ["fibonacci", "pisano period", "mod", "modulo", "prime", "gcd"]
 categories = ["algorithms"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
