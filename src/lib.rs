@@ -52,18 +52,23 @@ pub fn fib_mod_fast_doubling(k: u128, n: u128, pis_per: u128) -> (u128, u128) {
     } else if k == 1 {
         return (1, 1);
     }
+
     let (a, b) = fib_mod_fast_doubling(k / 2, n, pis_per);
-    let temp = if 2*b >= a {
-        2*b-a
-    } else {
-        (2*b+n) -a
-    };
-    let c = (a * temp) % n;
+    let c = (a * subtract_mod(2*b, a, n)) % n;
     let d = (a * a + b * b) % n;
     if k % 2 == 0 {
         (c, d)
     } else {
         (d, (c + d) % n)
+    }
+}
+
+#[inline(always)]
+fn subtract_mod(a: u128, b: u128, m: u128) -> u128 {
+    if a >= b {
+        a - b
+    } else {
+        m - (b - a)
     }
 }
 
