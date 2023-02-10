@@ -1,6 +1,6 @@
 # fibonacci_mod
 a few fibonacci sequence related functions modulo n
 
-pisano period for n
+Pisano period for n.
 
-fast doubling fibonacci calculation mod n
+Fast doubling Fibonacci calculation mod n
