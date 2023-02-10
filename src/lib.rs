@@ -24,6 +24,7 @@ pub fn pisano_period(m: u128) -> u128 {
 
 }
 
+#[inline(always)]
 pub fn pisano_period_prime(m: u128) -> u128 {
     let mut previous = 0;
     let mut current = 1;
