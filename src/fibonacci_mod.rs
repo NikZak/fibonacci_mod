@@ -4,7 +4,7 @@ use num_prime::nt_funcs::factorize;
 use gcd::Gcd;
 
 pub fn pisano_period(m: u128) -> u128 {
-    /// pis_per(m*n) for co-prime m and n is LCM( pis_per(m) * pis_per(n))
+    /// pis_per(m*n) for co-prime m and n is LCM(pis_per(m), pis_per(n))
     /// pis_per(p^k) for prime p is likely p^(k-1) * pis_per(p) (not disproved yet)
     /// so first factorize and then calculate pis_per for prime factors
 
