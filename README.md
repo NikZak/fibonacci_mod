@@ -1,5 +1,5 @@
 # fibonacci_mod
-a few fibonacci sequence related functions modulo n
+A few fibonacci sequence related functions modulo n
 
 Pisano period for n.
 
