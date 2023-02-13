@@ -48,7 +48,9 @@ name = "fibonacci_mod"
 version = "0.1.0"
 dependencies = [
  "gcd",
+ "num-modular",
  "num-prime",
+ "num-traits",
 ]
 
 [[package]]

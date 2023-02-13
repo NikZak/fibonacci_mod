@@ -1,71 +1,102 @@
+use std::fmt::{Display};
+use std::mem;
 use num_prime::nt_funcs::factorize;
-use gcd::Gcd;
+use num_prime::detail::{PrimalityBase, PrimalityRefBase};
 
 /// pis_per(m*n) for co-prime m and n is LCM(pis_per(m), pis_per(n))
 /// pis_per(p^k) for prime p is likely p^(k-1) * pis_per(p) (not disproved yet)
 /// so first factorize and then calculate pis_per for prime factors
-pub fn pisano_period(m: u128) -> u128 {
+pub fn pisano_period<U>(m: U) -> U
+where
+    U: PrimalityBase + Display,
+    for<'r> &'r U: PrimalityRefBase<U>,
+{
 
     let factors = factorize(m);
-    let mut gcd_ : u128 = 1;
-    let mut lcm_ : u128 = 1;
+    let mut lcm_ = U::one();
 
-    for (i, (p, k)) in factors.iter().enumerate() {
-        let pis_per_cur = pisano_period_prime(*p)*p.pow((k-1).try_into().unwrap());
-        if i == 0 {
-            gcd_ = pis_per_cur;
-            lcm_ = pis_per_cur;
-        } else {
-            gcd_ = gcd_.gcd(pis_per_cur);
-            lcm_ = lcm_ * pis_per_cur / gcd_;
-        }
+    for (p, k) in factors.iter() {
+        let pis_per_cur = pisano_period_prime(p) * (p.clone()).pow((k-1).try_into().unwrap());
+        lcm_ = lcm_.lcm(&pis_per_cur);
     }
     lcm_
 
 }
 
 #[inline(always)]
-pub fn pisano_period_prime(m: u128) -> u128 {
-    let mut previous = 0;
-    let mut current = 1;
-    for i in 0..m * m {
-        fib_step(&mut previous, &mut current, m);
-        if previous == 0 && current == 1 {
-            return i + 1;
+pub fn pisano_period_prime<U>(m: &U) -> U
+    where
+        U: PrimalityBase,
+        for<'r> &'r U: PrimalityRefBase<U>,
+{
+    let previous = &mut U::zero();
+    let current = &mut U::one();
+    let mut i = U::zero();
+    loop {
+        let temp = mem::replace(current, &(&*current + &*previous) % m) ;
+        *previous = temp;
+        if previous == &U::zero() && current == &U::one() {
+            return i + U::one();
         }
+        i = i + U::one();
     }
-    0
 }
 
-#[inline(always)]
-fn fib_step(previous: &mut u128, current: &mut u128, m: u128) {
-    (*previous, *current) = (*current, (*previous + *current) % m);
+pub fn fib_mod_fast_doubling<U>(k: U, n: U, pis_per: U) -> (U, U)
+    where
+        U: PrimalityBase,
+        for<'r> &'r U: PrimalityRefBase<U>,
+{
+    let mut res_n = U::zero();
+    let mut res_n_p_one = U::one();
+    fib_mod_fast_doubling_ref(&k, &n, &pis_per, &mut res_n, &mut res_n_p_one);
+    (res_n, res_n_p_one)
+
 }
 
 /// F_{2k} = F_k * (2 * F_{k+1} - F_k)
 /// F_{2k+1} = F_k^2 + F_{k+1}^2
-pub fn fib_mod_fast_doubling(k: u128, n: u128, pis_per: u128) -> (u128, u128) {
+///
+/// this is helper function to prevent cloning of U
+/// normally U is integer type, so cloning is same as copying
+/// however, it is not a given that U implements Copy
+pub fn fib_mod_fast_doubling_ref<U>(k: &U, n: &U, pis_per: &U, res_n: &mut U, res_n_p_one: &mut U)
+    where
+        U: PrimalityBase,
+        for<'r> &'r U: PrimalityRefBase<U>,
+{
 
     let k = k % pis_per;
 
-    if k == 0 {
-        return (0, 1);
-    } else if k == 1 {
-        return (1, 1);
+    if k == U::zero() {
+        *res_n = U::zero();
+        *res_n_p_one = U::one();
+        return;
+    } else if k == U::one() {
+        *res_n = U::one();
+        *res_n_p_one = U::one();
+        return;
     }
+    let two = &(U::one() + U::one());
 
-    let (a, b) = fib_mod_fast_doubling(k / 2, n, pis_per);
-    let c = (a * subtract_mod(2*b, a, n)) % n;
-    let d = (a * a + b * b) % n;
-    if k % 2 == 0 {
-        (c, d)
+    fib_mod_fast_doubling_ref(&(&k / two), n, pis_per, res_n, res_n_p_one);
+    let c = (&*res_n * &subtract_mod(&(two * &*res_n_p_one), &*res_n, n)) % n;
+    let d = (&*res_n * &*res_n + &*res_n_p_one * &*res_n_p_one) % n;
+    if k % two == U::zero() {
+        *res_n = c;
+        *res_n_p_one = d;
     } else {
-        (d, (c + d) % n)
+        *res_n_p_one = (&c + &d) %n;
+        *res_n = d;
     }
 }
 
 #[inline(always)]
-fn subtract_mod(a: u128, b: u128, m: u128) -> u128 {
+fn subtract_mod<U>(a: &U, b: &U, m: &U) -> U
+    where
+        U: PrimalityBase,
+        for<'r> &'r U: PrimalityRefBase<U>,
+{
     if a >= b {
         a - b
     } else {
@@ -77,23 +108,31 @@ fn subtract_mod(a: u128, b: u128, m: u128) -> u128 {
 mod tests {
     use super::*;
     #[test]
+    fn test_pisano_per_prime() {
+        assert_eq!(pisano_period_prime(&2_u128,             ), 3);
+        assert_eq!(pisano_period_prime(&3_u128,             ), 8);
+        assert_eq!(pisano_period_prime(&5_u128,             ), 20);
+    }
+    #[test]
     fn test_pisano_per() {
-        assert_eq!(pisano_period(2,             ), 3);
-        assert_eq!(pisano_period(3,             ), 8);
-        assert_eq!(pisano_period(5,             ), 20);
-        assert_eq!(pisano_period(7,             ), 16);
-        assert_eq!(pisano_period(11,            ), 10);
-        assert_eq!(pisano_period(47,            ), 32);
-        assert_eq!(pisano_period(235,           ), 160);
-        assert_eq!(pisano_period(235*235,       ), 37600);
-        assert_eq!(pisano_period(1234567891011, ), 21618914688);
-        assert_eq!(pisano_period(356,           ), 132);
+        assert_eq!(pisano_period(2_u128,             ), 3);
+        assert_eq!(pisano_period(3_u128,             ), 8);
+        assert_eq!(pisano_period(5_u128,             ), 20);
+        assert_eq!(pisano_period(7_u128,             ), 16);
+        assert_eq!(pisano_period(11_u128,            ), 10);
+        assert_eq!(pisano_period(47_u128,            ), 32);
+        assert_eq!(pisano_period(235_u128,           ), 160);
+        assert_eq!(pisano_period(235*235 as u128,       ), 37600);
+        assert_eq!(pisano_period(1234567891011_u128, ), 900788112);
+        assert_eq!(pisano_period(356_u128,           ), 132);
     }
 
     #[test]
     fn test_fib_fast_doubling() {
-        let n = 235;
+        let n:u128 = 235;
         let pis_per = 160;
+        let mut res_n=0;
+        let mut res_n_p_1=0;
         assert_eq!(fib_mod_fast_doubling(0,          n, pis_per), (0, 1));
         assert_eq!(fib_mod_fast_doubling(1,          n, pis_per), (1, 1));
         assert_eq!(fib_mod_fast_doubling(2,          n, pis_per), (1, 2));
@@ -107,8 +146,8 @@ mod tests {
         assert_eq!(fib_mod_fast_doubling(10,         n, pis_per), (55, 89));
         assert_eq!(fib_mod_fast_doubling(11,         n, pis_per), (89, 144));
         assert_eq!(fib_mod_fast_doubling(12,         n, pis_per), (144, 233));
-        assert_eq!(fib_mod_fast_doubling(1548276540, n, pis_per).0, 185);
-        assert_eq!(fib_mod_fast_doubling(1548276540, 356, 132).0, 288);
+        assert_eq!(fib_mod_fast_doubling(1548276540,         n, pis_per).0, 185);
+        assert_eq!(fib_mod_fast_doubling(1548276540 as u128, 356, 132).0, 288);
     }
 }
 
