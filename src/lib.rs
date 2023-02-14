@@ -1,5 +1,4 @@
 #![feature(test)]
-#![feature(specialization)]
 use std::mem;
 use num_prime::nt_funcs::factorize;
 use num_prime::detail::{PrimalityBase, PrimalityRefBase};
@@ -8,44 +7,17 @@ use num_bigint::BigUint;
 pub trait PisanoPeriodBase {
     fn pisano_period(&self) -> Self;
 }
-impl PisanoPeriodBase for u64 {
-    fn pisano_period(&self) -> Self {
-        pisano_period(self)
-    }
+macro_rules! impl_pisano_period {
+    ($($t:ty)*) => ($(
+        impl PisanoPeriodBase for $t {
+            fn pisano_period(&self) -> Self {
+                pisano_period(self)
+            }
+        }
+    )*)
 }
-impl PisanoPeriodBase for u128 {
-    fn pisano_period(&self) -> Self {
-        pisano_period(self)
-    }
-}
-impl PisanoPeriodBase for usize {
-    fn pisano_period(&self) -> Self {
-        pisano_period(self)
-    }
-}
-impl PisanoPeriodBase for u32 {
-    fn pisano_period(&self) -> Self {
-        pisano_period(self)
-    }
-}
+impl_pisano_period! {u64 u128 usize u32 u16 u8}
 
-impl PisanoPeriodBase for u16 {
-    fn pisano_period(&self) -> Self {
-        pisano_period(self)
-    }
-}
-
-impl PisanoPeriodBase for u8 {
-    fn pisano_period(&self) -> Self {
-        pisano_period(self)
-    }
-}
-
-impl PisanoPeriodBase for BigUint {
-    fn pisano_period(&self) -> Self {
-        pisano_period_ref(self)
-    }
-}
 
 /// pis_per(m*n) for co-prime m and n is LCM(pis_per(m), pis_per(n))
 /// pis_per(p^k) for prime p is likely p^(k-1) * pis_per(p) (not disproved yet)
@@ -126,38 +98,18 @@ where
 {
     fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self);
 }
-impl FibModBase for u64 {
-    fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self) {
-        fib_mod_fast_doubling(*self, n, pis_per)
-    }
-}
-impl FibModBase for u128 {
-    fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self) {
-        fib_mod_fast_doubling(*self, n, pis_per)
-    }
-}
-impl FibModBase for usize {
-    fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self) {
-        fib_mod_fast_doubling(*self, n, pis_per)
-    }
-}
-impl FibModBase for u32 {
-    fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self) {
-        fib_mod_fast_doubling(*self, n, pis_per)
-    }
+
+macro_rules! impl_fib_mod {
+    ($($t:ty)*) => ($(
+        impl FibModBase for $t {
+            fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self) {
+                fib_mod_fast_doubling(*self, n, pis_per)
+            }
+        }
+    )*)
 }
 
-impl FibModBase for u16 {
-    fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self) {
-        fib_mod_fast_doubling(*self, n, pis_per)
-    }
-}
-
-impl FibModBase for u8 {
-    fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self) {
-        fib_mod_fast_doubling(*self, n, pis_per)
-    }
-}
+impl_fib_mod! {u64 u128 usize u32 u16 u8}
 
 impl FibModBase for BigUint {
     fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self) {
