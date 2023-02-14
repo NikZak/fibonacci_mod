@@ -1,12 +1,56 @@
 #![feature(test)]
+#![feature(specialization)]
 use std::mem;
 use num_prime::nt_funcs::factorize;
 use num_prime::detail::{PrimalityBase, PrimalityRefBase};
+use num_bigint::BigUint;
+
+pub trait PisanoPeriodBase {
+    fn pisano_period(&self) -> Self;
+}
+impl PisanoPeriodBase for u64 {
+    fn pisano_period(&self) -> Self {
+        pisano_period(self)
+    }
+}
+impl PisanoPeriodBase for u128 {
+    fn pisano_period(&self) -> Self {
+        pisano_period(self)
+    }
+}
+impl PisanoPeriodBase for usize {
+    fn pisano_period(&self) -> Self {
+        pisano_period(self)
+    }
+}
+impl PisanoPeriodBase for u32 {
+    fn pisano_period(&self) -> Self {
+        pisano_period(self)
+    }
+}
+
+impl PisanoPeriodBase for u16 {
+    fn pisano_period(&self) -> Self {
+        pisano_period(self)
+    }
+}
+
+impl PisanoPeriodBase for u8 {
+    fn pisano_period(&self) -> Self {
+        pisano_period(self)
+    }
+}
+
+impl PisanoPeriodBase for BigUint {
+    fn pisano_period(&self) -> Self {
+        pisano_period_ref(self)
+    }
+}
 
 /// pis_per(m*n) for co-prime m and n is LCM(pis_per(m), pis_per(n))
 /// pis_per(p^k) for prime p is likely p^(k-1) * pis_per(p) (not disproved yet)
 /// so first factorize and then calculate pis_per for prime factors
-pub fn pisano_period<U>(m: &U) -> U
+fn pisano_period<U>(m: &U) -> U
 where
     U: PrimalityBase ,
     for<'r> &'r U: PrimalityRefBase<U>,
@@ -22,7 +66,7 @@ where
     lcm_
 
 }
-pub fn pisano_period_ref<U>(m:& U) -> U
+fn pisano_period_ref<U>(m:& U) -> U
     where
         U: PrimalityBase ,
         for<'r> &'r U: PrimalityRefBase<U>,
@@ -39,7 +83,7 @@ pub fn pisano_period_ref<U>(m:& U) -> U
 }
 
 #[inline(always)]
-pub fn pisano_period_prime_ref<U>(m: &U) -> U
+fn pisano_period_prime_ref<U>(m: &U) -> U
     where
         U: PrimalityBase,
         for<'r> &'r U: PrimalityRefBase<U>,
@@ -74,7 +118,58 @@ fn pisano_period_prime<U>(m: &U) -> U
     }
 }
 
-pub fn fib_mod_fast_doubling_ref<U>(k: U, n: U, pis_per: U) -> (U, U)
+pub trait FibModBase
+where
+    Self:Sized,
+    Self: PrimalityBase,
+    for<'r> &'r Self: PrimalityRefBase<Self>,
+{
+    fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self);
+}
+impl FibModBase for u64 {
+    fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self) {
+        fib_mod_fast_doubling(*self, n, pis_per)
+    }
+}
+impl FibModBase for u128 {
+    fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self) {
+        fib_mod_fast_doubling(*self, n, pis_per)
+    }
+}
+impl FibModBase for usize {
+    fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self) {
+        fib_mod_fast_doubling(*self, n, pis_per)
+    }
+}
+impl FibModBase for u32 {
+    fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self) {
+        fib_mod_fast_doubling(*self, n, pis_per)
+    }
+}
+
+impl FibModBase for u16 {
+    fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self) {
+        fib_mod_fast_doubling(*self, n, pis_per)
+    }
+}
+
+impl FibModBase for u8 {
+    fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self) {
+        fib_mod_fast_doubling(*self, n, pis_per)
+    }
+}
+
+impl FibModBase for BigUint {
+    fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self) {
+        let mut res_n = BigUint::from(0_usize);
+        let mut res_n_p_one = BigUint::from(1_usize);
+        fib_mod_fast_doubling_ref1(self, &n, &pis_per, &mut res_n, &mut res_n_p_one);
+        (res_n, res_n_p_one)
+    }
+}
+
+
+fn fib_mod_fast_doubling_ref<U>(k: U, n: U, pis_per: U) -> (U, U)
     where
         U: PrimalityBase,
         for<'r> &'r U: PrimalityRefBase<U>,
@@ -83,7 +178,6 @@ pub fn fib_mod_fast_doubling_ref<U>(k: U, n: U, pis_per: U) -> (U, U)
     let mut res_n_p_one = U::one();
     fib_mod_fast_doubling_ref1(&k, &n, &pis_per, &mut res_n, &mut res_n_p_one);
     (res_n, res_n_p_one)
-
 }
 
 /// F_{2k} = F_k * (2 * F_{k+1} - F_k)
@@ -122,7 +216,7 @@ fn fib_mod_fast_doubling_ref1<U>(k: &U, n: &U, pis_per: &U, res_n: &mut U, res_n
         *res_n = d;
     }
 }
-pub fn fib_mod_fast_doubling<U>(k: U, n: U, pis_per: U) -> (U, U)
+fn fib_mod_fast_doubling<U>(k: U, n: U, pis_per: U) -> (U, U)
     where
         U: PrimalityBase,
         for<'r> &'r U: PrimalityRefBase<U>,
@@ -195,16 +289,16 @@ mod tests {
     }
     #[test]
     fn test_pisano_per() {
-        assert_eq!(pisano_period(&2_u128,             ), 3);
-        assert_eq!(pisano_period(&3_u128,             ), 8);
-        assert_eq!(pisano_period(&5_u128,             ), 20);
-        assert_eq!(pisano_period(&7_u128,             ), 16);
-        assert_eq!(pisano_period(&11_u128,            ), 10);
-        assert_eq!(pisano_period(&47_u128,            ), 32);
-        assert_eq!(pisano_period(&235_u128,           ), 160);
-        assert_eq!(pisano_period(& ( 235*235 as u128 ),       ), 37600);
-        assert_eq!(pisano_period(&1234567891011_u128, ), 900788112);
-        assert_eq!(pisano_period(&356_u128,           ), 132);
+        assert_eq!(2_u128.pisano_period()             , 3);
+        assert_eq!(3_u128.pisano_period(), 8);
+        assert_eq!(5_u128.pisano_period(), 20);
+        assert_eq!(7_u128.pisano_period(), 16);
+        assert_eq!(11_u128.pisano_period(), 10);
+        assert_eq!(47_u128.pisano_period(), 32);
+        assert_eq!(235_u128.pisano_period(), 160);
+        assert_eq!( ( 235*235 as u128 ).pisano_period(), 37600);
+        assert_eq!(1234567891011_u128.pisano_period(), 900788112);
+        assert_eq!(356_u128.pisano_period(), 132);
     }
     fn get_n_random_numbers<T>(n:u64, max: Option<T>, seed: Option<u64>) -> Vec<T>
     where
@@ -318,8 +412,8 @@ mod tests {
     fn test_fib_fast_doubling() {
         let n:u128 = 235;
         let pis_per = 160;
-        assert_eq!(fib_mod_fast_doubling_ref(0, n, pis_per), (0, 1));
-        assert_eq!(fib_mod_fast_doubling_ref(1, n, pis_per), (1, 1));
+        assert_eq!(0.fib_mod(n, pis_per), (0, 1));
+        assert_eq!(1.fib_mod(n, pis_per), (1, 1));
         assert_eq!(fib_mod_fast_doubling_ref(2, n, pis_per), (1, 2));
         assert_eq!(fib_mod_fast_doubling_ref(3, n, pis_per), (2, 3));
         assert_eq!(fib_mod_fast_doubling_ref(4, n, pis_per), (3, 5));
@@ -331,8 +425,8 @@ mod tests {
         assert_eq!(fib_mod_fast_doubling_ref(10, n, pis_per), (55, 89));
         assert_eq!(fib_mod_fast_doubling_ref(11, n, pis_per), (89, 144));
         assert_eq!(fib_mod_fast_doubling_ref(12, n, pis_per), (144, 233));
-        assert_eq!(fib_mod_fast_doubling_ref(1548276540, n, pis_per).0, 185);
-        assert_eq!(fib_mod_fast_doubling_ref(1548276540 as u128, 356, 132).0, 288);
+        assert_eq!(1548276540.fib_mod(n, pis_per).0, 185);
+        assert_eq!((BigUint::from(1548276540_usize)).fib_mod(BigUint::from(356_usize), BigUint::from(132_usize)).0, BigUint::from(288_usize));
     }
 }
 
