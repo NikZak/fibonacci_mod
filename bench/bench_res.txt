@@ -1,12 +1,20 @@
-test tests::bench_fib_mod_fast_doubling1_biguint ... bench:     423,958 ns/iter (+/- 8,723)
-test tests::bench_fib_mod_fast_doubling1_u128    ... bench:      13,972 ns/iter (+/- 376)
-test tests::bench_fib_mod_fast_doubling1_u64     ... bench:       7,336 ns/iter (+/- 502)
-test tests::bench_fib_mod_fast_doubling_biguint  ... bench:     298,420 ns/iter (+/- 15,681)
-test tests::bench_fib_mod_fast_doubling_u128     ... bench:      15,871 ns/iter (+/- 505)
-test tests::bench_fib_mod_fast_doubling_u64      ... bench:       9,218 ns/iter (+/- 252)
-test tests::bench_pisano_period1_biguint         ... bench: 150,026,275 ns/iter (+/- 6,020,942)
-test tests::bench_pisano_period1_u128            ... bench:   9,539,733 ns/iter (+/- 416,030)
-test tests::bench_pisano_period1_u64             ... bench:   8,312,687 ns/iter (+/- 454,185)
-test tests::bench_pisano_period_biguint          ... bench: 116,807,029 ns/iter (+/- 5,034,402)
-test tests::bench_pisano_period_u128             ... bench:   9,951,175 ns/iter (+/- 231,339)
-test tests::bench_pisano_period_u64              ... bench:   8,275,254 ns/iter (+/- 377,261)
+
+running 15 tests
+test tests::test_fib_fast_doubling ... ignored
+test tests::test_pisano_per ... ignored
+test tests::test_pisano_per_prime ... ignored
+test tests::bench_fib_mod_fast_doubling_biguint     ... bench:     429,295 ns/iter (+/- 14,436)
+test tests::bench_fib_mod_fast_doubling_ref_biguint ... bench:     294,083 ns/iter (+/- 13,027)
+test tests::bench_fib_mod_fast_doubling_ref_u128    ... bench:      16,302 ns/iter (+/- 356)
+test tests::bench_fib_mod_fast_doubling_ref_u64     ... bench:       8,837 ns/iter (+/- 83)
+test tests::bench_fib_mod_fast_doubling_u128        ... bench:      13,825 ns/iter (+/- 206)
+test tests::bench_fib_mod_fast_doubling_u64         ... bench:       7,268 ns/iter (+/- 86)
+test tests::bench_pisano_period_biguint             ... bench:  70,518,704 ns/iter (+/- 3,160,641)
+test tests::bench_pisano_period_ref_biguint         ... bench:  54,802,162 ns/iter (+/- 2,557,034)
+test tests::bench_pisano_period_ref_u128            ... bench:   4,803,866 ns/iter (+/- 329,880)
+test tests::bench_pisano_period_ref_u64             ... bench:   3,832,545 ns/iter (+/- 140,901)
+test tests::bench_pisano_period_u128                ... bench:   4,656,618 ns/iter (+/- 221,326)
+test tests::bench_pisano_period_u64                 ... bench:   3,835,462 ns/iter (+/- 237,354)
+
+test result: ok. 0 passed; 0 failed; 3 ignored; 12 measured; 0 filtered out; finished in 50.40s
+
