@@ -18,6 +18,11 @@ macro_rules! impl_pisano_period {
 }
 impl_pisano_period! {u64 u128 usize u32 u16 u8}
 
+impl PisanoPeriodBase for BigUint {
+    fn pisano_period(&self) -> Self {
+        pisano_period_ref(self)
+    }
+}
 
 /// pis_per(m*n) for co-prime m and n is LCM(pis_per(m), pis_per(n))
 /// pis_per(p^k) for prime p is likely p^(k-1) * pis_per(p) (not disproved yet)
