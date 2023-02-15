@@ -24,19 +24,20 @@ impl FibModBase for BigUint {
     fn fib_mod(&self, n: Self, pis_per: Self) -> (Self, Self) {
         let mut res_n = BigUint::from(0_usize);
         let mut res_n_p_one = BigUint::from(1_usize);
-        fib_mod_fast_doubling_ref1(self, &n, &pis_per, &mut res_n, &mut res_n_p_one);
+        fib_mod_fast_doubling_pisper_ref1(self, &n, &pis_per, &mut res_n, &mut res_n_p_one);
         (res_n, res_n_p_one)
     }
 }
 
-fn fib_mod_fast_doubling_ref<U>(k: U, n: U, pis_per: U) -> (U, U)
+#[inline(always)]
+pub(crate) fn fib_mod_fast_doubling_ref<U>(k: U, n: U, pis_per: U) -> (U, U)
     where
         U: PrimalityBase,
         for<'r> &'r U: PrimalityRefBase<U>,
 {
     let mut res_n = U::zero();
     let mut res_n_p_one = U::one();
-    fib_mod_fast_doubling_ref1(&k, &n, &pis_per, &mut res_n, &mut res_n_p_one);
+    fib_mod_fast_doubling_pisper_ref1(&k, &n, &pis_per, &mut res_n, &mut res_n_p_one);
     (res_n, res_n_p_one)
 }
 
@@ -46,26 +47,36 @@ fn fib_mod_fast_doubling_ref<U>(k: U, n: U, pis_per: U) -> (U, U)
 /// this is helper function to prevent cloning of U
 /// normally U is integer type, so cloning is same as copying
 /// however, it is not a given that U implements Copy
-fn fib_mod_fast_doubling_ref1<U>(k: &U, n: &U, pis_per: &U, res_n: &mut U, res_n_p_one: &mut U)
+#[inline(always)]
+fn fib_mod_fast_doubling_pisper_ref1<U>(k: &U, n: &U, pis_per: &U, res_n: &mut U, res_n_p_one: &mut U)
     where
         U: PrimalityBase,
         for<'r> &'r U: PrimalityRefBase<U>,
 {
 
     let k = k % pis_per;
+    fib_mod_fast_doubling_ref1(&k, n, res_n, res_n_p_one)
 
-    if k == U::zero() {
+}
+#[inline(always)]
+fn fib_mod_fast_doubling_ref1<U>(k: &U, n: &U, res_n: &mut U, res_n_p_one: &mut U)
+    where
+        U: PrimalityBase,
+        for<'r> &'r U: PrimalityRefBase<U>,
+{
+
+    if k == &U::zero() {
         *res_n = U::zero();
         *res_n_p_one = U::one();
         return;
-    } else if k == U::one() {
+    } else if k == &U::one() {
         *res_n = U::one();
         *res_n_p_one = U::one();
         return;
     }
     let two = &(U::one() + U::one());
 
-    fib_mod_fast_doubling_ref1(&(&k / two), n, pis_per, res_n, res_n_p_one);
+    fib_mod_fast_doubling_ref1(&(k / two), n, res_n, res_n_p_one);
     let c = (&*res_n * &subtract_mod_ref(&(two * &*res_n_p_one), &*res_n, n)) % n;
     let d = (&*res_n * &*res_n + &*res_n_p_one * &*res_n_p_one) % n;
     if k % two == U::zero() {
@@ -77,6 +88,7 @@ fn fib_mod_fast_doubling_ref1<U>(k: &U, n: &U, pis_per: &U, res_n: &mut U, res_n
     }
 }
 
+#[inline(always)]
 fn fib_mod_fast_doubling_pis_per<U>(k: U, n: U, pis_per: U) -> (U, U)
     where
         U: PrimalityBase,

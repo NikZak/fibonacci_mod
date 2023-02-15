@@ -90,23 +90,22 @@ fn pisano_period_prime_fast<U>(m: &U) -> U
 {
     let two = U::from(2_u8);
     let three = U::from(3_u8);
-    if m == &two {
-        return three;
-    }
     let eight = U::from(8_u8);
-    if m == &three {
-        return eight;
-    }
     let five = U::from(5_u8);
     let twenty = U::from(20_u8);
-    if m == &five {
-        return twenty;
-    }
-
     let one = U::from(1_u8);
     let seven = U::from(7_u8);
     let nine = U::from(9_u8);
     let ten = U::from(10_u8);
+    if m == &two {
+        return three;
+    }
+    if m == &three {
+        return eight;
+    }
+    if m == &five {
+        return twenty;
+    }
 
     let rem_10 = m.clone() % ten;
     let starting_cand;
