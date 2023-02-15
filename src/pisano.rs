@@ -44,7 +44,7 @@ where
     lcm_
 }
 
-
+/// this is same as pisano_period, but uses reference instead of cloning
 pub fn pisano_period_ref<U>(m:& U) -> U
     where
         U: PrimalityBase ,
@@ -63,6 +63,7 @@ pub fn pisano_period_ref<U>(m:& U) -> U
 
 }
 
+/// This is inefficient implementation, only for testing
 #[inline(always)]
 fn pisano_period_prime_simple<U>(m: &U) -> U
     where
