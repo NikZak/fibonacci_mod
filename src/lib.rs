@@ -1,7 +1,7 @@
 #![feature(test)]
 mod rand;
-mod pisano;
-mod fib_mod;
+pub mod pisano;
+pub mod fib_mod;
 
 
 
